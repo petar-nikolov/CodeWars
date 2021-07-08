@@ -430,6 +430,36 @@ namespace SoftUni.Fundamentals
         {
             var inputString = Console.ReadLine();
             var diesPairs = inputString.Split('#');
+            //TODO
+        }
+
+        public static void TheLift()
+        {
+                        var people = int.Parse(Console.ReadLine());
+            var wagons = Console.ReadLine().Split().Select(int.Parse).ToList();
+
+            for (var index = 0; index < wagons.Count; index++)
+            {
+                while (people > 0 && wagons[index] != 4)
+                {
+                    wagons[index]++;
+                    people--;
+                }
+            }
+
+            var maxSpace = wagons.Count * 4;
+            var spaceLeft = maxSpace - wagons.Sum();
+            if (spaceLeft > people)
+            {
+                Console.WriteLine("The lift has empty spots!");
+            }
+            if (spaceLeft < people)
+            {
+                var peopleLeft = people - (spaceLeft);
+                Console.WriteLine($"There isn't enough space! {peopleLeft} people in a queue!");
+            }
+
+            Console.WriteLine(string.Join(' ', wagons));
         }
     }
 }

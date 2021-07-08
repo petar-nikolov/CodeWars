@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace SoftUni
 {
@@ -6,10 +7,7 @@ namespace SoftUni
     {
         static void Main(string[] args)
         {
-            var inputString = Console.ReadLine();
 
-            var diesPairs = inputString.Split("##");
-            Console.WriteLine(string.Join(' ', diesPairs));
         }
     }
 }
