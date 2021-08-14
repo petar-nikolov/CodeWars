@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Channels;
 
 namespace SoftUni.Fundamentals
@@ -462,6 +463,385 @@ namespace SoftUni.Fundamentals
             }
 
             Console.WriteLine($"{Math.Round(totalSum, 2):F2}");
+        }
+
+        public static void AdAstra()
+        {
+            var foodMessage = Console.ReadLine();
+            var foods = new List<Food>();
+            var diesSeparatedRegex = new Regex(@"(\#[\w ]*_?#)([0-9]{2}\/[0-9]{2}\/[0-9]{2}#)(\d*#)");
+            var lineSeparatedRegex = new Regex(@"(\\|[\w ]*_?\|)([0-9]{2}\/[0-9]{2}\/[0-9]{2}\|)(\d*\|)");
+
+            var diesSeparated = diesSeparatedRegex.Matches(foodMessage);
+            var lineSeparated = lineSeparatedRegex.Matches(foodMessage);
+
+            foreach (Match match in diesSeparated)
+            {
+                var separated = match.Value.Trim('#').Split('#');
+                var currentMatchFood = new Food
+                {
+                    Name = separated[0],
+                    ExpirationDate = separated[1],
+                    Calories = int.Parse(separated[2])
+                };
+
+                foods.Add(currentMatchFood);
+            }
+
+            foreach (Match match in lineSeparated)
+            {
+                var separated = match.Value.Trim('|').Split('|');
+                var currentMatchFood = new Food
+                {
+                    Name = separated[0],
+                    ExpirationDate = separated[1],
+                    Calories = int.Parse(separated[2])
+                };
+
+                foods.Add(currentMatchFood);
+            }
+
+            var daysWithCalories = (foods.Select(x => x.Calories).Sum()) / 2000;
+
+            Console.WriteLine($"You have food to last you for: {daysWithCalories} days!");
+
+            foreach (var food in foods)
+            {
+                Console.WriteLine($"Item: {food.Name}, Best before: {food.ExpirationDate}, Nutrition: {food.Calories}");
+            }
+        }
+
+        public static void Pianist()
+        {
+            var numberOfPieces = int.Parse(Console.ReadLine());
+            var listOfPieces = new List<PiecePart>();
+
+            while (listOfPieces.Count < numberOfPieces)
+            {
+                var currentPieceLine = Console.ReadLine().Split("|");
+                listOfPieces.Add(new PiecePart
+                {
+                    Piece = currentPieceLine[0],
+                    Composer = currentPieceLine[1],
+                    Key = currentPieceLine[2]
+                });
+            }
+
+            var commandLine = Console.ReadLine();
+
+            while (commandLine != "Stop")
+            {
+                var splitCommand = commandLine.Split("|");
+                var command = splitCommand[0];
+                var pieceToActWith = new PiecePart();
+
+                switch (command)
+                {
+                    case "Add":
+                        pieceToActWith.Piece = splitCommand[1];
+                        pieceToActWith.Composer = splitCommand[2];
+                        pieceToActWith.Key = splitCommand[3];
+                        if (listOfPieces.Any(x => x.Piece == pieceToActWith.Piece))
+                        {
+                            Console.WriteLine($"{pieceToActWith.Piece} is already in the collection!");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{pieceToActWith.Piece} by {pieceToActWith.Composer} in {pieceToActWith.Key} added to the collection!");
+                            listOfPieces.Add(pieceToActWith);
+                        }
+
+                        break;
+
+                    case "Remove":
+                        pieceToActWith.Piece = splitCommand[1];
+                        if (listOfPieces.Any(x => x.Piece == pieceToActWith.Piece))
+                        {
+                            Console.WriteLine($"Successfully removed {pieceToActWith.Piece}!");
+                            var pieceToRemove = listOfPieces.First(x => x.Piece == pieceToActWith.Piece);
+                            listOfPieces.Remove(pieceToRemove);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Invalid operation! {pieceToActWith.Piece} does not exist in the collection.");
+                        }
+
+                        break;
+
+                    case "ChangeKey":
+                        pieceToActWith.Piece = splitCommand[1];
+                        pieceToActWith.Key = splitCommand[2];
+                        if (listOfPieces.Any(x => x.Piece == pieceToActWith.Piece))
+                        {
+                            listOfPieces.First(x => x.Piece == pieceToActWith.Piece).Key = pieceToActWith.Key;
+                            Console.WriteLine($"Changed the key of {pieceToActWith.Piece} to {pieceToActWith.Key}!");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Invalid operation! {pieceToActWith.Piece} does not exist in the collection.");
+                        }
+
+                        break;
+                }
+
+                commandLine = Console.ReadLine();
+            }
+
+            foreach (var listOfPiece in listOfPieces.OrderBy(x => x.Piece).ThenBy(x => x.Composer))
+            {
+                Console.WriteLine($"{listOfPiece.Piece} -> Composer: {listOfPiece.Composer}, Key: {listOfPiece.Key}");
+            }
+        }
+
+        public static void PasswordReset()
+        {
+            var password = Console.ReadLine();
+            var commandLine = Console.ReadLine();
+
+            while (!commandLine.Contains("Done"))
+            {
+                var splitCommandLine = commandLine.Split();
+                var command = splitCommandLine[0];
+
+                switch (command)
+                {
+                    case "TakeOdd":
+                        var charArr = new List<char>();
+
+                        for (int i = 0; i < password.Length; i++)
+                        {
+                            if (i % 2 != 0)
+                            {
+                                charArr.Add(password[i]);
+                            }
+                        }
+
+                        password = new string(charArr.ToArray());
+                        Console.WriteLine(password);
+                        break;
+
+                    case "Cut":
+                        var index = int.Parse(splitCommandLine[1]);
+                        var length = int.Parse(splitCommandLine[2]);
+                        var substring = password.Substring(index, length);
+                        var indexToRemoveFrom = password.IndexOf(substring);
+                        password = password.Remove(indexToRemoveFrom, substring.Length);
+                        Console.WriteLine(password);
+                        break;
+
+                    case "Substitute":
+                        var substr = splitCommandLine[1];
+                        var substitute = splitCommandLine[2];
+                        if (password.Contains(substr))
+                        {
+                            password = password.Replace(substr, substitute);
+                            Console.WriteLine(password);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Nothing to replace!");
+                        }
+
+                        break;
+                }
+
+                commandLine = Console.ReadLine();
+            }
+
+            Console.WriteLine($"Your password is: {password}");
+        }
+
+        public static void FinalExamProblemOne()
+        {
+            var username = Console.ReadLine();
+
+            var commandLine = Console.ReadLine();
+
+            while (!commandLine.Contains("Registration"))
+            {
+                var splitCommandLine = commandLine.Split();
+                var command = splitCommandLine[0];
+
+                switch (command)
+                {
+                    case "Letters":
+                        var setting = splitCommandLine[1];
+                        username = setting == "Lower" ? username.ToLower() : username.ToUpper();
+                        Console.WriteLine(username);
+                        break;
+
+                    case "Reverse":
+                        var startIndex = int.Parse(splitCommandLine[1]);
+                        var endIndex = int.Parse(splitCommandLine[2]);
+                        if (startIndex != 0 && endIndex != 0 && startIndex < username.Length && endIndex < username.Length && endIndex > startIndex)
+                        {
+                            var charArrToReverse = new List<char>();
+                            for (int i = startIndex; i <= endIndex; i++)
+                            {
+                                charArrToReverse.Add(username[i]);
+                            }
+
+                            var reversed = new string(charArrToReverse.ToArray().Reverse().ToArray());
+                            Console.WriteLine(reversed);
+                        }
+
+                        break;
+
+                    case "Substring":
+                        var substring = splitCommandLine[1];
+                        if (username.Contains(substring))
+                        {
+                            username = username.Replace(substring, string.Empty);
+                            Console.WriteLine(username);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"The username {username} doesn't contain {substring}.");
+                        }
+
+                        break;
+
+                    case "Replace":
+                        var charForReplace = splitCommandLine[1];
+                        username = username.Replace(charForReplace, "-");
+                        Console.WriteLine(username);
+                        break;
+
+                    case "IsValid":
+                        var charToContain = splitCommandLine[1];
+                        if (username.Contains(charToContain))
+                        {
+                            Console.WriteLine("Valid username.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{charToContain} must be contained in your username.");
+                        }
+
+                        break;
+                }
+
+                commandLine = Console.ReadLine();
+            }
+        }
+
+        public static void FinalExamProblemTwo()
+        {
+            var numberOfInputs = int.Parse(Console.ReadLine());
+
+            for (int i = 0; i < numberOfInputs; i++)
+            {
+                var messageToEncrypt = Console.ReadLine();
+
+                var regex = new Regex(string.Empty);
+
+                regex = messageToEncrypt.StartsWith('*')
+                    ? new Regex(@".*\*([A-z][a-z]{3,})\*(: )((\[\D])(\|))*")
+                    : new Regex(@".*\@([A-z][a-z]{3,})\@(: )((\[\D])(\|))*");
+
+                var match = regex.Match(messageToEncrypt);
+
+                if (match.Value == string.Empty || !messageToEncrypt.EndsWith('|'))
+                {
+                    Console.WriteLine("Valid message not found!");
+                    continue;
+                }
+
+                var specialChar = match.Value.Contains('*') ? '*' : '@';
+
+                var message = match.Value
+                    .Substring(match.Value.IndexOf(specialChar))
+                    .Replace("*", string.Empty)
+                    .Replace("@", string.Empty)
+                    .Replace("[", string.Empty)
+                    .Replace("]", string.Empty)
+                    .Replace("|", string.Empty)
+                    .Split();
+
+                var tag = message[0];
+                var chars = message[1].Select(x => (int) (x)).ToArray();
+
+                if (chars.Length != 3)
+                {
+                    Console.WriteLine("Valid message not found!");
+                    continue;
+                }
+
+                Console.WriteLine($"{tag} {string.Join(" ", chars)}");
+            }
+        }
+
+        public static void FinalExamProblem3()
+        {
+            var input = string.Empty;
+            var usernameLikesAndComments = new Dictionary<string, int>();
+            while (input != "Log out")
+            {
+                input = Console.ReadLine();
+                if (input == "Log out")
+                {
+                    break;
+                }
+
+                var commands = input.Split(":").Select(x => x.Trim()).ToArray();
+                var command = commands[0];
+                var usernameToAct = commands[1];
+
+                switch (command)
+                {
+                    case "New follower":
+                        if (!usernameLikesAndComments.ContainsKey(usernameToAct))
+                        {
+                            usernameLikesAndComments.Add(usernameToAct, 0);
+                        }
+
+                        break;
+
+                    case "Like":
+                        var likesCount = int.Parse(commands[2]);
+                        if (!usernameLikesAndComments.ContainsKey(usernameToAct))
+                        {
+                            usernameLikesAndComments.Add(usernameToAct, likesCount);
+                        }
+                        else
+                        {
+                            usernameLikesAndComments[usernameToAct] += likesCount;
+                        }
+
+                        break;
+
+                    case "Comment":
+                        if (!usernameLikesAndComments.ContainsKey(usernameToAct))
+                        {
+                            usernameLikesAndComments.Add(usernameToAct, 1);
+                        }
+                        else
+                        {
+                            usernameLikesAndComments[usernameToAct]++;
+                        }
+
+                        break;
+
+                    case "Blocked":
+                        if (!usernameLikesAndComments.ContainsKey(usernameToAct))
+                        {
+                            Console.WriteLine($"{usernameToAct} doesn't exist.");
+                        }
+                        else
+                        {
+                            usernameLikesAndComments.Remove(usernameToAct);
+                        }
+
+                        break;
+                }
+            }
+
+            Console.WriteLine($"{usernameLikesAndComments.Count} followers");
+
+            foreach (var usernameLikesAndComment in usernameLikesAndComments.OrderByDescending(x => x.Value).ThenBy(x => x.Key))
+            {
+                Console.WriteLine($"{usernameLikesAndComment.Key}: {usernameLikesAndComment.Value}");
+            }
         }
     }
 }

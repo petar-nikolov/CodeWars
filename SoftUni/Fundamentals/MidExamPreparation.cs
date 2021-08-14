@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Intrinsics.X86;
-using System.Threading.Channels;
 
 namespace SoftUni.Fundamentals
 {
@@ -435,7 +433,7 @@ namespace SoftUni.Fundamentals
 
         public static void TheLift()
         {
-                        var people = int.Parse(Console.ReadLine());
+            var people = int.Parse(Console.ReadLine());
             var wagons = Console.ReadLine().Split().Select(int.Parse).ToList();
 
             for (var index = 0; index < wagons.Count; index++)
@@ -453,6 +451,7 @@ namespace SoftUni.Fundamentals
             {
                 Console.WriteLine("The lift has empty spots!");
             }
+
             if (spaceLeft < people)
             {
                 var peopleLeft = people - (spaceLeft);

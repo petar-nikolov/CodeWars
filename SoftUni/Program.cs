@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Reflection.Metadata;
-
-namespace SoftUni
+﻿namespace SoftUni
 {
     class Program
     {
