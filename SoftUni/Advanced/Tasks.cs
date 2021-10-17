@@ -218,5 +218,227 @@ namespace SoftUni.Advanced
                 Console.WriteLine($"{totalCars} total cars passed the crossroads.");
             }
         }
+
+        public static void KeyRevolver()
+        {
+            var bulletPrice = int.Parse(Console.ReadLine());
+            var gunBarrelSize = int.Parse(Console.ReadLine());
+            var bullets = new Stack<int>(Console.ReadLine().Split().Select(int.Parse).ToList());
+            var locks = new Queue<int>(Console.ReadLine().Split().Select(int.Parse).ToList());
+            var intelligence = int.Parse(Console.ReadLine());
+            var shotsCount = 0;
+
+            while (bullets.Any())
+            {
+                //Check the success
+                if (!locks.Any())
+                {
+                    break;
+                }
+
+                shotsCount++;
+                //take a shot to a lock
+                var bullet = bullets.Peek();
+                var lockToShot = locks.Peek();
+
+                //Check status of the shot
+                if (bullet <= lockToShot)
+                {
+                    Console.WriteLine("Bang!");
+                    locks.Dequeue();
+                }
+                else
+                {
+                    Console.WriteLine("Ping!");
+                }
+
+                //Clear the bullet
+                bullets.Pop();
+
+                //Pay the price of the bullet
+                intelligence -= bulletPrice;
+
+
+                if (!bullets.Any())
+                {
+                    break;
+                }
+
+                //Check reloading
+                if (shotsCount == gunBarrelSize)
+                {
+                    shotsCount = 0;
+                    Console.WriteLine("Reloading!");
+                }
+            }
+
+            Console.WriteLine(locks.Any()
+                ? $"Couldn't get through. Locks left: {locks.Count}"
+                : $"{bullets.Count} bullets left. Earned ${intelligence}");
+        }
+
+        public static void CupsAndBottles()
+        {
+            var cups = new Queue<int>(Console.ReadLine().Split().Select(int.Parse).ToList());
+            var bottles = new Stack<int>(Console.ReadLine().Split().Select(int.Parse).ToList());
+            var wastedWater = 0;
+            var allCupsFilled = false;
+            while (bottles.Any())
+            {
+                if (!cups.Any())
+                {
+                    allCupsFilled = true;
+                    break;
+                }
+
+                var cupToFill = cups.Peek();
+
+                while (cupToFill > 0)
+                {
+                    var currentBottle = bottles.Pop();
+                    if (currentBottle > cupToFill)
+                    {
+                        wastedWater += currentBottle - cupToFill;
+                    }
+
+                    cupToFill -= currentBottle;
+
+                    if (cupToFill <= 0)
+                    {
+                        cups.Dequeue();
+                        break;
+                    }
+                }
+            }
+
+            Console.WriteLine(allCupsFilled
+                ? $"Bottles: {string.Join(" ", bottles)}"
+                : $"Cups: {string.Join(" ", cups)}");
+
+            Console.WriteLine($"Wasted litters of water: {wastedWater}");
+        }
+
+        public static void DiagonalDiff()
+        {
+            var matrixSize = int.Parse(Console.ReadLine());
+            var matrix = new int[matrixSize, matrixSize];
+            for (int i = 0; i < matrixSize; i++)
+            {
+                var lineElements = Console.ReadLine().Split().Select(int.Parse).ToArray();
+
+                for (int j = 0; j < matrixSize; j++)
+                {
+                    matrix[i, j] = lineElements[j];
+                }
+            }
+
+            var firstDiag = 0;
+            for (int i = 0; i < matrixSize; i++)
+            {
+                firstDiag += matrix[i, i];
+            }
+
+            var secondDiag = 0;
+            for (int i = 0; i < matrixSize; i++)
+            {
+                var elem = matrix[i, matrixSize - 1 - i];
+                secondDiag += elem;
+            }
+
+            Console.WriteLine(Math.Abs(firstDiag - secondDiag));
+        }
+
+        public static void TwoSquareMatrixCharEquality()
+        {
+            var matrixSize = Console.ReadLine().Split().Select(int.Parse).ToArray();
+            var matrix = new string[matrixSize[0], matrixSize[1]];
+
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                var lineElements = Console.ReadLine().Split();
+
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    matrix[i, j] = lineElements[j];
+                }
+            }
+
+            var foundMatrixCount = 0;
+
+            for (int row = 0; row < matrix.GetLength(0) - 1; row++)
+            {
+                for (int col = 0; col < matrix.GetLength(1) - 1; col++)
+                {
+                    var currentElement = matrix[row, col];
+                    var nextColElement = matrix[row, col + 1];
+                    var aboveRowElement = matrix[row + 1, col];
+                    var aboveColElement = matrix[row + 1, col + 1];
+                    if (currentElement == nextColElement &&
+                        currentElement == aboveRowElement &&
+                        currentElement == aboveColElement)
+                    {
+                        foundMatrixCount++;
+                    }
+                }
+            }
+
+            Console.WriteLine(foundMatrixCount);
+        }
+
+        public static void SnakeMove()
+        {
+            var matrixSize = Console.ReadLine().Split().Select(int.Parse).ToArray();
+            var rows = matrixSize[0];
+            var cols = matrixSize[1];
+            var matrix = new string[rows, cols];
+            var snake = Console.ReadLine().ToCharArray().Select(x => x.ToString()).ToList();
+            var reverse = false;
+            var currentSnakeIndex = 0;
+            var currentRow = 0;
+
+            for (int row = 0; row < rows; row++)
+            {
+                if (reverse == false)
+                {
+                    for (int col = 0; col < cols; col++)
+                    {
+                        if (currentSnakeIndex == snake.Count)
+                        {
+                            currentSnakeIndex = 0;
+                        }
+
+                        matrix[row, col] = snake[currentSnakeIndex];
+                        currentSnakeIndex++;
+                    }
+
+                    reverse = true;
+                }
+                else
+                {
+                    for (int col = cols - 1; col >= 0; col--)
+                    {
+                        if (currentSnakeIndex == snake.Count)
+                        {
+                            currentSnakeIndex = 0;
+                        }
+
+                        matrix[row, col] = snake[currentSnakeIndex];
+                        currentSnakeIndex++;
+                    }
+
+                    reverse = false;
+                }
+            }
+
+            for (int row = 0; row < rows; row++)
+            {
+                for (int col = 0; col < cols; col++)
+                {
+                    Console.Write(matrix[row, col]);
+                }
+
+                Console.WriteLine();
+            }
+        }
     }
 }
