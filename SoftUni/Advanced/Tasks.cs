@@ -440,5 +440,128 @@ namespace SoftUni.Advanced
                 Console.WriteLine();
             }
         }
+
+        public static void Vloggers()
+        {
+            var vloggers = new Dictionary<string, Dictionary<string, HashSet<string>>>();
+            var following = "following";
+            var followed = "followed";
+
+            for (int i = 0; i < int.MaxValue - 1; i++)
+            {
+                var line = Console.ReadLine();
+
+                if (line == "Statistics")
+                {
+                    var totalCountOfVloggers = vloggers.Select(x => x.Value).Count();
+                    var mostFollowedVloggers = vloggers.OrderByDescending(x => x.Value[followed].Count).ThenBy(x => x.Value[following].Count);
+                    break;
+                }
+
+                var splitLine = line.Split().ToList();
+                if (splitLine.Contains("joined"))
+                {
+                    var vlogger = splitLine.First();
+                    if (!vloggers.ContainsKey(vlogger))
+                    {
+                        vloggers.Add(vlogger, new Dictionary<string, HashSet<string>>());
+                        vloggers[vlogger].Add(followed, new HashSet<string>());
+                        vloggers[vlogger].Add(following, new HashSet<string>());
+                    }
+                }
+
+                if (splitLine.Contains("followed"))
+                {
+                    var follower = splitLine.First();
+                    var vlogger = splitLine.Last();
+                    if (vloggers.ContainsKey(vlogger) && vloggers.ContainsKey(follower) && follower != vlogger)
+                    {
+                        vloggers[vlogger][followed].Add(follower);
+                        vloggers[follower][following].Add(vlogger);
+                    }
+                }
+            }
+        }
+
+        public static void Ranking()
+        {
+            var firstCommandLine = Console.ReadLine();
+            var contestsPasswords = new Dictionary<string, string>();
+            var contestUsers = new Dictionary<string, Dictionary<string, int>>();
+            while (firstCommandLine != "end of contests")
+            {
+                var splitCommandLine = firstCommandLine.Split(':').Select(x => x.Trim()).ToArray();
+                var contest = splitCommandLine[0];
+                var password = splitCommandLine[1];
+
+                if (!contestsPasswords.ContainsKey(contest))
+                {
+                    contestsPasswords.Add(contest, password);
+                }
+
+                firstCommandLine = Console.ReadLine();
+            }
+
+            var secondCommandLine = Console.ReadLine();
+
+            while (secondCommandLine != "end of submissions")
+            {
+                var splitCommandLine = secondCommandLine.Split("=>").Select(x => x.Trim()).ToArray();
+                var contest = splitCommandLine[0];
+                var password = splitCommandLine[1];
+                var username = splitCommandLine[2];
+                var points = int.Parse(splitCommandLine[3]);
+
+                if (contestsPasswords.ContainsKey(contest) && contestsPasswords[contest] == password)
+                {
+                    if (contestUsers.ContainsKey(username))
+                    {
+                        if (contestUsers[username].ContainsKey(contest))
+                        {
+                            var currentUserPoints = contestUsers[username][contest];
+                            if (currentUserPoints < points)
+                            {
+                                contestUsers[contest][username] = points;
+                            }
+                        }
+                        else
+                        {
+                            contestUsers[username].Add(contest, points);
+                        }
+                    }
+                    else
+                    {
+                        var contestDict = new Dictionary<string, int>();
+                        contestDict.Add(contest, points);
+                        contestUsers.Add(username, contestDict);
+                    }
+                }
+
+                secondCommandLine = Console.ReadLine();
+            }
+
+            var userTotals = new Dictionary<string, int>();
+
+            foreach (var contestUsersKey in contestUsers.Keys)
+            {
+                var totals = contestUsers[contestUsersKey].Sum(x => x.Value);
+                userTotals.Add(contestUsersKey, totals);
+            }
+
+            var mostPointsUser = userTotals.OrderByDescending(x => x.Value).First();
+
+            Console.WriteLine($"Best candidate is {mostPointsUser.Key} with total {mostPointsUser.Value} points.");
+            Console.WriteLine("Ranking:");
+            var orderedToPrint = contestUsers.OrderBy(x => x.Key).ToList();
+            foreach (var contestUsersKey in orderedToPrint.Select(l => l.Key))
+            {
+                Console.WriteLine(contestUsersKey);
+
+                foreach (var cont in contestUsers[contestUsersKey].OrderByDescending(x => x.Value))
+                {
+                    Console.WriteLine($"#  {cont.Key} -> {cont.Value}");
+                }
+            }
+        }
     }
 }
