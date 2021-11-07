@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace SoftUni.Advanced
 {
@@ -562,6 +563,68 @@ namespace SoftUni.Advanced
                     Console.WriteLine($"#  {cont.Key} -> {cont.Value}");
                 }
             }
+        }
+
+        public static void PartyPeople()
+        {
+            var names = Console.ReadLine().Split().ToList();
+            var commandLine = Console.ReadLine();
+            while (commandLine != "Party!")
+            {
+                var split = commandLine.Split();
+                var command = split[0];
+                var condition = split[1];
+                var parameter = split[2];
+                var filtered = new List<string>();
+
+                switch (condition)
+                {
+                    case "StartsWith":
+                        filtered = names.Where(x => x.StartsWith(parameter)).ToList();
+                        break;
+
+                    case "EndsWith":
+                        filtered = names.Where(x => x.EndsWith(parameter)).ToList();
+                        break;
+
+                    case "Length":
+                        filtered = names.Where(x => x.Length == int.Parse(parameter)).ToList();
+                        break;
+                }
+
+                switch (command)
+                {
+                    case "Double":
+                        foreach (var filteredName in filtered)
+                        {
+                            names.Insert(names.IndexOf(filteredName) + 1, filteredName);
+                        }
+
+                        break;
+
+                    case "Remove":
+                        names.RemoveAll(x => filtered.Any(f => f == x));
+                        break;
+                }
+
+                commandLine = Console.ReadLine();
+            }
+
+            var stringBuilder = new StringBuilder();
+
+            if (names.Any())
+            {
+                stringBuilder.Append(string.Join(", ", names));
+
+                stringBuilder.Append(" are going to the party!");
+            }
+            else
+            {
+                stringBuilder.Append("Nobody is going to the party!");
+            }
+
+            Console.WriteLine(stringBuilder);
+
         }
     }
 }
